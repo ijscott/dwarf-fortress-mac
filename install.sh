@@ -78,31 +78,17 @@ check_prerequisites() {
     fi
     ok "SteamCMD"
 
-    # Whisky + Wine runtime
-    WHISKY_WINE="$HOME/Library/Application Support/com.isaacmarovitz.Whisky/Libraries/Wine/bin/wine64"
-    WHISKY_WINE_LIB="$HOME/Library/Application Support/com.isaacmarovitz.Whisky/Libraries/Wine/lib"
-
-    if [[ ! -d "/Applications/Whisky.app" ]]; then
-        info "Installing Whisky via Homebrew..."
-        brew install --cask whisky
-    fi
-    ok "Whisky"
+    # Game Porting Toolkit — Apple's Wine with D3DMetal (D3D11→Metal, no DXVK needed)
+    GPTK_BASE="/Applications/Game Porting Toolkit.app/Contents/Resources/wine"
+    WHISKY_WINE="$GPTK_BASE/bin/wine64"
+    WHISKY_WINE_LIB="$GPTK_BASE/lib"
 
     if [[ ! -x "$WHISKY_WINE" ]]; then
-        open /Applications/Whisky.app
-        printf "\n  ${BOLD}Action required in Whisky:${NC}\n"
-        printf "  → In the Whisky window, click through any setup or install prompts\n"
-        printf "  → Wait for the Wine download to complete (~500 MB)\n"
-        printf "  → Do NOT close Whisky\n"
-        printf "  This script will continue automatically once Wine is ready.\n\n"
-        printf "  (Waiting for: %s)\n\n" "$WHISKY_WINE"
-        while [[ ! -x "$WHISKY_WINE" ]]; do
-            sleep 3
-            printf "  ."
-        done
-        printf "\n"
+        info "Installing Game Porting Toolkit via Homebrew (~1.3 GB)..."
+        brew tap gcenx/wine 2>/dev/null || true
+        brew install --cask gcenx/wine/game-porting-toolkit
     fi
-    ok "Wine runtime"
+    ok "Wine (Game Porting Toolkit)"
 
     # curl + unzip
     command -v curl  &>/dev/null || die "curl not found"
@@ -184,7 +170,7 @@ setup_wine_bottle() {
     # Give wineserver a moment to finish
     sleep 2
 
-    info "Installing DXVK (D3D11→Metal via MoltenVK)..."
+    info "Installing DXVK (D3D11→Metal)..."
     local wine_sys="$WHISKY_WINE_LIB/wine/x86_64-windows"
     local sys32="$WINE_DIR/drive_c/windows/system32"
     mkdir -p "$sys32"
