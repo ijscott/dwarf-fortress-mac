@@ -120,6 +120,7 @@ download_df_classic() {
     inner=$(find "$tmp" -maxdepth 1 -type d | tail -1)
     cp -r "$inner/." "$GAME_DIR/"
     rm -rf "$tmp" "$zip"
+    xattr -cr "$GAME_DIR" 2>/dev/null || true
     ok "DF Classic extracted to $GAME_DIR"
 }
 
@@ -255,6 +256,7 @@ install_dfhack() {
     info "Extracting..."
     unzip -q "$zip" -d "$GAME_DIR"
     rm "$zip"
+    xattr -cr "$GAME_DIR" 2>/dev/null || true
 
     # Ensure auto-inject config exists
     [[ -f "$GAME_DIR/dfhooks_dfhack.ini" ]] || echo "hack/dfhooks_dfhack.dll" > "$GAME_DIR/dfhooks_dfhack.ini"
