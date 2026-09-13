@@ -90,7 +90,7 @@ check_prerequisites() {
 
     if [[ ! -x "$WHISKY_WINE" ]]; then
         info "Opening Whisky to download the Wine runtime (~500 MB)..."
-        open -a Whisky
+        open /Applications/Whisky.app
         printf "\n  ${BOLD}Whisky has opened.${NC} Click 'Install' if prompted, then wait for it\n"
         printf "  to finish downloading. This script will continue automatically.\n\n"
         printf "  Waiting for Wine"
