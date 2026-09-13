@@ -380,6 +380,14 @@ export WINEDEBUG="-all"
 export STEAM_COMPAT_CLIENT_INSTALL_PATH=""
 
 cd "\$GAME_DIR"
+
+# GPTK initialises the Wine bottle on first invocation then exits without
+# running the app — detect this and retry once the bottle is ready
+if [[ ! -f "\$WINE_DIR/system.reg" ]]; then
+    "\$WINE" wineboot --init >> /tmp/df_launch.log 2>&1 || true
+    sleep 3
+fi
+
 exec "\$WINE" "Dwarf Fortress.exe" >> /tmp/df_launch.log 2>&1
 LAUNCHEOF
     chmod +x "$APP_PATH/Contents/MacOS/DwarfFortress"
