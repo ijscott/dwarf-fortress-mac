@@ -11,6 +11,20 @@
 #    · Whisky    (https://github.com/Whisky-App/Whisky/releases)
 #    · Steam account that owns Dwarf Fortress
 #
+VERSION="1.0.0"
+
+# Quick help / version — used by Homebrew test block and curious users
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+    echo "df-setup $VERSION — Dwarf Fortress macOS installer"
+    echo "Usage: df-setup [INSTALL_DIR=~/dwarf_fortress]"
+    echo "  Installs DF with Steam Premium graphics, audio, and DFHack."
+    echo "  Requires: Homebrew, Whisky, Steam account that owns Dwarf Fortress."
+    exit 0
+fi
+if [[ "${1:-}" == "--version" ]]; then
+    echo "$VERSION"; exit 0
+fi
+
 set -euo pipefail
 
 # ── Configuration ─────────────────────────────────────────────────────────────
