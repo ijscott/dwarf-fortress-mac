@@ -88,6 +88,8 @@ check_prerequisites() {
         brew tap gcenx/wine 2>/dev/null || true
         brew install --cask gcenx/wine/game-porting-toolkit
     fi
+    # Strip quarantine so macOS doesn't block GPTK frameworks
+    xattr -cr "/Applications/Game Porting Toolkit.app" 2>/dev/null || true
     ok "Wine (Game Porting Toolkit)"
 
     # curl + unzip
@@ -143,10 +145,15 @@ steam_download() {
     printf "\n${BOLD}Steam login required.${NC}\n"
     printf "  Enter your Steam username (password will be prompted by SteamCMD):\n"
     printf "  If Steam Guard is enabled, you'll also be asked for a code.\n\n"
-    printf "Steam username: "; read -r STEAM_USER
+    printf "Steam username: "; read -r STEAM_USER < /dev/tty
 
     info "Downloading shared content depot (~1 GB)..."
-    steamcmd         +login "$STEAM_USER"         +download_depot "$STEAM_APP_ID" "$DEPOT_SHARED"         +download_depot "$STEAM_APP_ID" "$DEPOT_WINDOWS"         +quit
+    # Redirect stdin from /dev/tty so SteamCMD can prompt for password + Steam Guard
+    steamcmd \
+        +login "$STEAM_USER" \
+        +download_depot "$STEAM_APP_ID" "$DEPOT_SHARED" \
+        +download_depot "$STEAM_APP_ID" "$DEPOT_WINDOWS" \
+        +quit < /dev/tty
 
     DEPOT_SHARED_PATH=$(find /opt/homebrew/Caskroom/steamcmd -path "*/app_${STEAM_APP_ID}/depot_${DEPOT_SHARED}" -type d 2>/dev/null | head -1)
     DEPOT_WINDOWS_PATH=$(find /opt/homebrew/Caskroom/steamcmd -path "*/app_${STEAM_APP_ID}/depot_${DEPOT_WINDOWS}" -type d 2>/dev/null | head -1)
