@@ -144,6 +144,10 @@ steam_download() {
     printf "\n${BOLD}Steam login required.${NC}\n"
     printf "  Enter your Steam username (password will be prompted by SteamCMD):\n"
     printf "  If Steam Guard is enabled, you'll also be asked for a code.\n\n"
+    # Strip quarantine from SteamCMD — it bundles Breakpad.framework which
+    # macOS blocks before SteamCMD can even show the login prompt
+    xattr -cr /opt/homebrew/Caskroom/steamcmd/ 2>/dev/null || true
+
     printf "Steam username: "; read -r STEAM_USER < /dev/tty
 
     info "Downloading shared content depot (~1 GB)..."
