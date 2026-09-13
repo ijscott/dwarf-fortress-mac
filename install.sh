@@ -74,7 +74,7 @@ check_prerequisites() {
     # SteamCMD
     if ! command -v steamcmd &>/dev/null; then
         info "Installing SteamCMD via Homebrew..."
-        brew install --no-quarantine steamcmd
+        brew install --cask --no-quarantine steamcmd
     fi
     ok "SteamCMD"
 
