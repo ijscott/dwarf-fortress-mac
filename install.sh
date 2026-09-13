@@ -78,17 +78,29 @@ check_prerequisites() {
     fi
     ok "SteamCMD"
 
-    # Whisky Wine binary
+    # Whisky + Wine runtime
     WHISKY_WINE="$HOME/Library/Application Support/com.isaacmarovitz.Whisky/Libraries/Wine/bin/wine64"
     WHISKY_WINE_LIB="$HOME/Library/Application Support/com.isaacmarovitz.Whisky/Libraries/Wine/lib"
-    if [[ ! -x "$WHISKY_WINE" ]]; then
-        printf "\n${Y}Whisky not found.${NC}\n"
-        printf "  1. Download Whisky from https://github.com/Whisky-App/Whisky/releases\n"
-        printf "  2. Install and open it once (so it downloads Wine)\n"
-        printf "  3. Re-run this script\n\n"
-        exit 1
+
+    if [[ ! -d "/Applications/Whisky.app" ]]; then
+        info "Installing Whisky via Homebrew..."
+        brew install --cask whisky
     fi
-    ok "Whisky / Wine"
+    ok "Whisky"
+
+    if [[ ! -x "$WHISKY_WINE" ]]; then
+        info "Opening Whisky to download the Wine runtime (~500 MB)..."
+        open -a Whisky
+        printf "\n  ${BOLD}Whisky has opened.${NC} Click 'Install' if prompted, then wait for it\n"
+        printf "  to finish downloading. This script will continue automatically.\n\n"
+        printf "  Waiting for Wine"
+        while [[ ! -x "$WHISKY_WINE" ]]; do
+            sleep 3
+            printf "."
+        done
+        printf " ready!\n"
+    fi
+    ok "Wine runtime"
 
     # curl + unzip
     command -v curl  &>/dev/null || die "curl not found"
