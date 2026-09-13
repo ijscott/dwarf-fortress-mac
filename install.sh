@@ -150,13 +150,28 @@ steam_download() {
 
     printf "Steam username: "; read -r STEAM_USER < /dev/tty
 
-    info "Downloading shared content depot (~1 GB)..."
-    # Redirect stdin from /dev/tty so SteamCMD can prompt for password + Steam Guard
+    # Phase 1 — interactive login (prompts for password + Steam Guard code)
+    info "Logging in to Steam..."
+    steamcmd +login "$STEAM_USER" +quit < /dev/tty
+
+    # Phase 2 — download in background using cached credentials, show animation
+    info "Starting download (~1 GB, takes a few minutes)..."
     steamcmd \
         +login "$STEAM_USER" \
         +download_depot "$STEAM_APP_ID" "$DEPOT_SHARED" \
         +download_depot "$STEAM_APP_ID" "$DEPOT_WINDOWS" \
-        +quit < /dev/tty
+        +quit > /tmp/steamcmd_dl.log 2>&1 &
+    local dl_pid=$!
+
+    printf "  Downloading"
+    while kill -0 "$dl_pid" 2>/dev/null; do
+        printf "."
+        sleep 4
+    done
+    wait "$dl_pid"
+    local dl_status=$?
+    printf "\n"
+    [[ $dl_status -eq 0 ]] || die "Steam download failed — check /tmp/steamcmd_dl.log"
 
     DEPOT_SHARED_PATH=$(find /opt/homebrew/Caskroom/steamcmd -path "*/app_${STEAM_APP_ID}/depot_${DEPOT_SHARED}" -type d 2>/dev/null | head -1)
     DEPOT_WINDOWS_PATH=$(find /opt/homebrew/Caskroom/steamcmd -path "*/app_${STEAM_APP_ID}/depot_${DEPOT_WINDOWS}" -type d 2>/dev/null | head -1)
