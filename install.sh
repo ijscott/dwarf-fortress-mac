@@ -165,7 +165,10 @@ setup_wine_bottle() {
     fi
 
     info "Initialising Wine prefix..."
-    WINEPREFIX="$WINE_DIR" WINEDEBUG=-all WINEMSYNC=1         "$WHISKY_WINE" wineboot --init 2>/dev/null || true
+    WINEPREFIX="$WINE_DIR" WINEDEBUG=-all WINEMSYNC=1 \
+        STEAM_COMPAT_CLIENT_INSTALL_PATH="" \
+        DYLD_LIBRARY_PATH="$WHISKY_WINE_LIB" \
+        "$WHISKY_WINE" wineboot --init 2>/dev/null || true
 
     # Give wineserver a moment to finish
     sleep 2
@@ -344,6 +347,7 @@ export WINEDLLOVERRIDES="d3d11=n;d3d10core=n;dxgi=n"
 export DYLD_LIBRARY_PATH="\$WINE_LIB"
 export WINEMSYNC=1
 export WINEDEBUG="-all"
+export STEAM_COMPAT_CLIENT_INSTALL_PATH=""
 
 cd "\$GAME_DIR"
 exec "\$WINE" "Dwarf Fortress.exe" >> /tmp/df_launch.log 2>&1
