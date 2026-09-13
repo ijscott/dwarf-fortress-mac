@@ -89,16 +89,18 @@ check_prerequisites() {
     ok "Whisky"
 
     if [[ ! -x "$WHISKY_WINE" ]]; then
-        info "Opening Whisky to download the Wine runtime (~500 MB)..."
         open /Applications/Whisky.app
-        printf "\n  ${BOLD}Whisky has opened.${NC} Click 'Install' if prompted, then wait for it\n"
-        printf "  to finish downloading. This script will continue automatically.\n\n"
-        printf "  Waiting for Wine"
+        printf "\n  ${BOLD}Action required in Whisky:${NC}\n"
+        printf "  → In the Whisky window, click through any setup or install prompts\n"
+        printf "  → Wait for the Wine download to complete (~500 MB)\n"
+        printf "  → Do NOT close Whisky\n"
+        printf "  This script will continue automatically once Wine is ready.\n\n"
+        printf "  (Waiting for: %s)\n\n" "$WHISKY_WINE"
         while [[ ! -x "$WHISKY_WINE" ]]; do
             sleep 3
-            printf "."
+            printf "  ."
         done
-        printf " ready!\n"
+        printf "\n"
     fi
     ok "Wine runtime"
 
