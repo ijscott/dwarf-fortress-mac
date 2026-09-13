@@ -74,7 +74,7 @@ check_prerequisites() {
     # SteamCMD
     if ! command -v steamcmd &>/dev/null; then
         info "Installing SteamCMD via Homebrew..."
-        brew install steamcmd
+        brew install --no-quarantine steamcmd
     fi
     ok "SteamCMD"
 
@@ -86,9 +86,8 @@ check_prerequisites() {
     if [[ ! -x "$WHISKY_WINE" ]]; then
         info "Installing Game Porting Toolkit via Homebrew (~1.3 GB)..."
         brew tap gcenx/wine 2>/dev/null || true
-        brew install --cask gcenx/wine/game-porting-toolkit
+        brew install --cask --no-quarantine gcenx/wine/game-porting-toolkit
     fi
-    # Strip quarantine so macOS doesn't block GPTK frameworks
     xattr -cr "/Applications/Game Porting Toolkit.app" 2>/dev/null || true
     ok "Wine (Game Porting Toolkit)"
 
@@ -171,6 +170,10 @@ setup_wine_bottle() {
         ok "Wine bottle already initialised — skipping"
         return
     fi
+
+    # Final quarantine strip before Wine runs anything
+    xattr -cr "$GAME_DIR" 2>/dev/null || true
+    xattr -cr "/Applications/Game Porting Toolkit.app" 2>/dev/null || true
 
     info "Initialising Wine prefix..."
     WINEPREFIX="$WINE_DIR" WINEDEBUG=-all WINEMSYNC=1 \
