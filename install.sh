@@ -166,33 +166,32 @@ steam_download() {
 setup_wine_bottle() {
     step 4 "Setting up Wine bottle"
 
-    if [[ -f "$WINE_DIR/system.reg" ]]; then
-        ok "Wine bottle already initialised — skipping"
+    if [[ -d "$WINE_DIR/drive_c" ]]; then
+        ok "Wine bottle already set up — skipping"
         return
     fi
 
-    # Final quarantine strip before Wine runs anything
-    xattr -cr "$GAME_DIR" 2>/dev/null || true
-    xattr -cr "/Applications/Game Porting Toolkit.app" 2>/dev/null || true
-
-    info "Initialising Wine prefix..."
-    WINEPREFIX="$WINE_DIR" WINEDEBUG=-all WINEMSYNC=1 \
-        STEAM_COMPAT_CLIENT_INSTALL_PATH="" \
-        DYLD_LIBRARY_PATH="$WHISKY_WINE_LIB" \
-        "$WHISKY_WINE" wineboot --init 2>/dev/null || true
-
-    # Give wineserver a moment to finish
-    sleep 2
+    # Create the directory structure Wine needs — skip wineboot entirely
+    # (Wine auto-initialises the registry on first launch, avoiding GPTK
+    # framework load and the macOS Gatekeeper quarantine popup at install time)
+    info "Creating Wine directory structure..."
+    local sys32="$WINE_DIR/drive_c/windows/system32"
+    local wine_user="$WINE_DIR/drive_c/users/$(id -un)"
+    mkdir -p "$sys32" \
+             "$WINE_DIR/drive_c/windows/syswow64" \
+             "$WINE_DIR/drive_c/Program Files" \
+             "$WINE_DIR/drive_c/Program Files (x86)" \
+             "$wine_user/AppData/Roaming/Bay 12 Games/Dwarf Fortress/prefs" \
+             "$wine_user/AppData/Local" \
+             "$wine_user/Desktop"
 
     info "Installing DXVK (D3D11→Metal)..."
     local wine_sys="$WHISKY_WINE_LIB/wine/x86_64-windows"
-    local sys32="$WINE_DIR/drive_c/windows/system32"
-    mkdir -p "$sys32"
     for dll in d3d11.dll d3d10core.dll dxgi.dll; do
         cp "$wine_sys/$dll" "$sys32/$dll"
     done
 
-    # wineboot sets up CoreAudio automatically; no reg add needed
+    # no reg add needed —
 
     ok "Wine bottle ready at $WINE_DIR"
 }
